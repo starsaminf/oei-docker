@@ -1,0 +1,17 @@
+# MariaDB-specific config file.
+# Read by /etc/mysql/my.cnf
+
+[client]
+# Default is Latin1, if you need UTF-8 set this (also in server section)
+default-character-set = utf8 
+
+[mysqld]
+#
+# * Character sets
+# 
+# Default is Latin1, if you need UTF-8 set all this (also in client section)
+#
+lower_case_table_names = 1
+collation-server = utf8_unicode_ci
+init-connect='SET NAMES utf8'
+character-set-server = utf8
