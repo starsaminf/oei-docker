@@ -94,6 +94,11 @@ docker run --name oei-phpmyadmin \
 -e PMA_PORT=3306 \
 phpmyadmin/phpmyadmin
 ```
+##Agregamos en la parte final la ip que asignamos en el paso anterior
+```bash
+172.19.0.4      phpmyadminl.dev
+```
+
 Las credenciales son las mismas de mas arriba
 ```bash
 usuario  root 
@@ -106,10 +111,6 @@ password identidad
 ###Restauramos la BD que se envio al correo
 
 
-###Front
-
-
-
 ###Laravel  y BD
 ```bash
 docker exec -it oei-laravel /bin/bash
@@ -120,6 +121,8 @@ cp .env.example .env
 ```bash
 vi .env 
 ```
+Con "sc + : wq" guardamos y salimos
+
 ####Remplazar las credenciales de la BD por
 ```bash
 DB_CONNECTION=mysql
@@ -129,12 +132,32 @@ DB_DATABASE=identidad
 DB_USERNAME=identidad
 DB_PASSWORD=identidad
 ```
+####Instalamos las dependencias
 ```bash
 composer install
 php artisan key:generate
-php artisan jwt:secret
+php artisan jwt:secre
 ```
-##Importar la BD backup.sql
+##Importamos la BD backup.sql que se nos envio al correo
+
+###Front
+
+Vamos donde esta nuestro front
+
+```bash
+cd /srv/htdocs/lenguas/idefront/
+```
+Levantamos con docker
+```bash
+docker run -it  \
+--network oei-net \
+--restart=always \
+--ip 172.19.0.5 \
+-w /opt -v $(pwd):/opt \
+-p 4200:4200 \
+alexsuch/angular-cli:1.0.0-beta.22-ubuntu ng \
+serve --host 0.0.0.0
+```
 
 
 
