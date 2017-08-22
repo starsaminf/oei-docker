@@ -1,12 +1,13 @@
-FROM node:6.6
-MAINTAINER Samuel Loza "starsaminf@gmail.com"
+FROM node:6.11
+MAINTAINER martin scharm <https://binfalse.de>
 
-# prepare a user which runs everything locally! - required in child images!
-RUN useradd --user-group --create-home --shell /bin/false app
+# install some common dependencies
+RUN npm install --unsafe-perm -g @angular/cli findup-sync typescript 
 
-ENV HOME=/home/app
-WORKDIR $HOME
 
-RUN npm install -g npm && npm install -g @angular/cli  && npm cache clean
-
+WORKDIR /usr/src/app
+VOLUME /usr/src/app
 EXPOSE 4200
+
+# compile the app and run it
+CMD npm install && npm start
