@@ -12,11 +12,10 @@ git clone git@github.com:starsaminf/oei-docker.git
 docker network create oei-net
 ```
 
-###Revisamos el Gatawey que nos asigno
+###Revisamos el Gatawey que se nos asigno, en este caso se asigno: 172.18.0.1
 ```bash
 docker inspect oei-net | grep "Gateway" | awk -F: '{print $2}'
 ```
-
 ### Construir la imagen para laravel
 ```bash
 cd oei-docker/back
@@ -28,7 +27,7 @@ cd ../../
 ```
 
 
-### Construir el contenedor
+### Construir el contenedor, usando la ip siguiente del Gatawey que se nos asigno y remplazamos $(pwd)/ideback/ por la rata del ideback
 
 ```bash
 docker run --name oei-api  \
