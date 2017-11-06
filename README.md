@@ -39,12 +39,18 @@ docker run --name oei-api  \
 -d oei:api
 ```
 ###Editamos el archivo /etc/hosts
-###Agregamos la ip de oei-api 
+
+###Agregamos la ip del paso anterior  
 
 ```bash
 echo "172.19.0.2 lenguas-api.dev" |  sudo tee --append  /etc/hosts
 ```
-
+###Instalamos composer
+```bash
+docker exec -it oei-api /bin/bash
+cd public/
+composer install
+```
 
 ```bash
 cd ../../
