@@ -5,9 +5,9 @@
 git clone git@github.com:starsaminf/oei-docker.git
 ```
 
-# Creando el entorno de desarrollo BackEnd (Api)
+#Creando el entorno de desarrollo BackEnd (Api)
 
-### Crear la red oei-net en docker
+###Crear la red oei-net en docker
 ```bash
 docker network create oei-net
 ```
@@ -16,18 +16,17 @@ docker network create oei-net
 ```bash
 docker inspect oei-net | grep "Gateway" | awk -F: '{print $2}'
 ```
-### Construir la imagen para laravel
+###Construir la imagen para laravel
 ```bash
 cd oei-docker/back
 docker build -t oei:api .
 ```
-
+###Volvemos a la raiz del proyecto
 ```bash
 cd ../../
 ```
-
-
-### Construir el contenedor, usando la ip siguiente del Gatawey que se nos asigno y remplazamos $(pwd)/ideback/ por la rata del ideback
+###Construir el contenedor, usando la ip siguiente del Gatawey que se nos asigno, a modo de ejemplo seria 172.18.0.2
+Remplazamos $(pwd)/ideback/ por la rata del ideback
 
 ```bash
 docker run --name oei-api  \
@@ -45,13 +44,17 @@ docker run --name oei-api  \
 ```bash
 echo "172.19.0.2 lenguas-api.dev" |  sudo tee --append  /etc/hosts
 ```
-###Instalamos composer
+###Instalamos composer y las dependencias
 ```bash
 docker exec -it oei-api /bin/bash
 cd public/
 composer install
+php artisan key:generate
+php artisan jwt:secre
 ```
+Para salir control + d 
 
+###Volvemos a la raiz del proyecto
 ```bash
 cd ../../
 ```
@@ -63,12 +66,13 @@ cd ../../
 cd oei-docker/db
 docker build -t oei:db .
 ```
+###Volvemos a la raiz del proyecto
 
 ```bash
 cd ../../
 ```
 
-##Construimos el contenedor
+##Construimos el contenedor, de igual modo asignamos una ip, para el ejemplo asignamos 172.19.0.3
 ```bash
 docker run -d \
 --network oei-net \
@@ -79,7 +83,7 @@ docker run -d \
 -e MYSQL_ROOT_PASSWORD=root oei:db 
 ```
 
-##Nos conectamos al contenedor
+##Conectamos con el contenedor
 ```bash
 docker exec -it oei-db /bin/bash
 mysql --user=root --password=root 
@@ -100,7 +104,7 @@ GRANT SELECT ON dclo.* TO identidad@'%';
 Apretamos control + d  2 veces
 
 
-###PhpMyAdmin
+###PhpMyAdmin, cambiamos la ip, para el ejemplo usamos 172.19.0.4
 
 ```bash
 docker run --name oei-phpmyadmin \
@@ -113,7 +117,6 @@ docker run --name oei-phpmyadmin \
 phpmyadmin/phpmyadmin
 
 ```
-Las credenciales son las mismas de mas arriba
 
 ###Editamos el archivo /etc/hosts
 ###Agregamos la ip de phpmyadmin 
@@ -121,7 +124,7 @@ Las credenciales son las mismas de mas arriba
 ```bash
 echo "172.19.0.4 lenguas-myadmin.dev" |  sudo tee --append  /etc/hosts
 ```
-
+Las credenciales para la bae de datos
 
 ```bash
 usuario  root 
@@ -133,19 +136,14 @@ password identidad
 
 ###Restauramos la BD que se envio al correo
 
-
 Entramos desde el navegador a:  
 
 ```html
 lenguas-myadmin.dev
 ```
-Los archivos estan dentro de:
+Mostrara la pantalla de inicio a phpmyadmin
 
-```bash
-files/db
-```
-
-###Link Larave - BD - Admin - User 
+###Link Laravel - BD - Admin - User 
 Desde nuestro IDE favorito editamos las credenciales del .env si es que es fuera necesario de:
 
 
@@ -158,17 +156,6 @@ DB_DATABASE=identidad
 DB_USERNAME=identidad
 DB_PASSWORD=identidad
 ```
-####Instalamos las dependencias
-
-```bash
-docker exec -it oei-api /bin/bash
-cd public
-composer install
-php artisan key:generate
-php artisan jwt:secre
-```
-Para salir control + d 
-
 
 ###Front Usuario
 
@@ -183,14 +170,13 @@ cd ../../
 ```bash
 cd idefront/
 ```
-Instalamos las dependencias para angular
 
+Instalamos las dependencias para angular, "$(pwd)" remplazamos por la ruta donde estan los archivos del front
 ```bash
 docker run --rm -it -v $(pwd):/usr/src/app oei:front npm install 
 ```
 
-Levantamos con docker
-
+###Levantamos con docker
 ```bash
 docker run -d  \
 --network oei-net \
@@ -203,7 +189,7 @@ serve --host 0.0.0.0 --port 80
      
 ```
 
-###Logs en otra consola 
+###Logs en otra consola para el front
 ```bash
 docker logs -f lenguas-user
 ```
@@ -215,17 +201,9 @@ docker logs -f lenguas-user
 echo "172.19.0.5 lenguas.dev" |  sudo tee --append  /etc/hosts
 ```
 
-
-
 ###Front Admin
 
-Vamos donde esta nuestro front
-
-
-```bash
-cd admin/
-```
-Instalamos las dependencias para angular
+Instalamos las dependencias para angular, "$(pwd)" remplazamos por la rutal del admin front
 
 ```bash
 docker run --rm \
@@ -233,7 +211,7 @@ docker run --rm \
 oei:front npm install 
 ```
 
-Levantamos con docker
+Levantamos con docker, cambiamos la ip y "$(pwd)" remplazamos por la rutal del admin front
 
 ```bash
 docker run -d  \
@@ -248,7 +226,7 @@ serve --host 0.0.0.0 --port 80
 ```
 
 ###Logs
-Para ver la consola 
+Para ver la consola
 
 ```bash
 docker logs -f lenguas-user
@@ -261,9 +239,8 @@ docker logs -f lenguas-user
 echo "172.19.0.6 lenguas-admin.dev" |  sudo tee --append  /etc/hosts
 ```
 
-
 ###Archivos 
-Restablecemos los archivos del storage
+Restablecemos los archivos del storage, ejecutamos en la consola de la maquina
 
 ```bash
 cp -rv oei-docker/files/ ideback/storage/app/
@@ -276,24 +253,28 @@ ABCabc123
 ```
 ####Nota
 
-Se modifico los archivos config.ts de **idefront** y **admin**, para dockerizar la aplicacion.
+Modificar los archivos config.ts de **idefront** y **admin**, editar las lineas de IDENTIDAD_URL de ambos archivos, debera quedar como se muestra a continuacion.
 
 ####Idefront
 
 ```javascript
+..
   public static readonly IDENTIDAD_URL:string = 'http://lenguas.dev/api/v1';
+  ..
 ```
 ####Admin
 
 ```javascript
+..
    public static readonly IDENTIDAD_URL:string = 'http://lenguas.dev/api/v1';
+..
 ```
 
 En **ideback**
 
-Se modifico **ideback/config/cors.php**.
+Modificar **ideback/config/cors.php**.
 
-Linea 15 y se agrego al array **lenguas.dev** y **lenguas-admin.dev**
+La linea 15 y agregar al array **lenguas.dev** y **lenguas-admin.dev**
 
 Quedando el archivo
 
@@ -309,7 +290,7 @@ En los comandos para lanzar los contenedores hay:
 Este comando se usa para iniciar automaticamente el contenedor.
 
 
-Cada ves que estes desarrollando en angular 
+Cada ves que se este desarrollando en angular, para ver los logs.
 
 ```bash
 docker logs -f lenguas-user
@@ -321,12 +302,10 @@ docker logs -f lenguas-admin
 ```
 
 ####Pendiente
-Dockerizar el resto de aplicaciones de la OEI para dedicar mas al desarrollo que al instalar alguna dependencia x o y que se encesita.
+Si tienes tiempo (lector) un script que automatice todo esto seria genial, ya me da flojera xD 
 
 ###Great 
 
-Costo!! una tarde hacer esto posible ademas de varios megas.
-
 Ya esta todo listo para desarrollo.
 
-Si tienes tiempo un script que automatice todo esto seria genial, ya me da flojera xD 
+
